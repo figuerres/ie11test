@@ -27,36 +27,59 @@ export class AppComponent  implements OnInit  {
     private httpInterceptor: HttpInterceptorService
   ) {
 
-    this.httpInterceptor.request().addInterceptor((data, method) => {
-        const headers = getHttpHeadersOrInit(data, method); 
-console.log(" data ", data);
+    this.httpInterceptor.request().addInterceptor((data: any[] , method: string) => {
 
-console.log(" method ", method );
-console.log(" headers ", headers);
+   console.log(" data start ", data);
+   console.log(" data .length ",data.length);
+   console.log("  data[getHttpOptionsIdx(method)]  ",  data[getHttpOptionsIdx(method)] );
+let idx: number;
+let headers: Headers;
+let options: RequestOptions;
 
-     this.error = null;
- headers.append("testcode","IE11");
+ idx =  getHttpOptionsIdx(method);
 
+if(!data[idx]){
+  console.log("  create options and headers collections ")
+   headers = new Headers();
+   options = new RequestOptions({  headers:   headers });
+   let foo = Array.from(data);
+   foo.splice(idx,0,options);
+   data = foo;
+}else{
+  console.log("  options already there, check headers ")
+ options = data[idx];
+  headers = options.headers;
+    // Create and update Headers
+     if (!headers) {
+        console.log(" !options.headers ");
+        headers = new Headers();
+        options.headers = headers;
+     }
+}
+
+    this.error = null;
+ //   
+ //   options.withCredentials=true;
+ //   
+ //      data[idx] = options;   
+ //  
+     headers.append("testcode","IE11");
      headers.append(
        'Authorization', 
-'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2Rldi5hZGxkZWxpdmVyeS5jb20vaWQiLCJhdWQiOiJodHRwczovL2Rldi5hZGxkZWxpdmVyeS5jb20vaWQvcmVzb3VyY2VzIiwiZXhwIjoxNDk1NzUxMTg4LCJuYmYiOjE0OTU3MjIzODgsImNsaWVudF9pZCI6ImltcGxpY2l0Y2xpZW50Iiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sInN1YiI6IjIiLCJhdXRoX3RpbWUiOjE0OTU3MjIzODgsImlkcCI6Imlkc3J2IiwiYW1yIjpbInBhc3N3b3JkIl19.MZDrkJKR6WXiE9xpjNHhylERwN3kLUFGkk5GajCsHyab8aBb6ityV8TW-c00vPaE0PpiilvBV5HrAe5ARzO8XGSRm7bV7bJmz5DUzbduwikdCg8BnoBFy-JrrIdzsANBki78SeQLUsdzijUjlA9th3160vfr9CE-slDTyY90FxZTtxnHLjb6qzoPFSnupix05a4VX7ZQA17dWd2hwu-lPhVxPd6LMwuHTNsBHZrdFTXfu9EGTos6rRx7Lsyg5pCzoYgYev0vieROr6ff7Jkn8P6v5DUpERb8d5fH_Yoj_AVEdBaBYUMgc5FUD343KfdfnZqAoBu5lmgLzw1_h05eCg' 
+'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2Rldi5hZGxkZWxpdmVyeS5jb20vaWQiLCJhdWQiOiJodHRwczovL2Rldi5hZGxkZWxpdmVyeS5jb20vaWQvcmVzb3VyY2VzIiwiZXhwIjoxNDk1ODMxNTU3LCJuYmYiOjE0OTU4MDI3NTcsImNsaWVudF9pZCI6ImltcGxpY2l0Y2xpZW50Iiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sInN1YiI6IjIiLCJhdXRoX3RpbWUiOjE0OTU4MDI3NTcsImlkcCI6Imlkc3J2IiwiYW1yIjpbInBhc3N3b3JkIl19.GgBQPzS0AXzOL4WlLiS8mLlCuHZLNdyMKqrQT_xY6b86S4a7hkXoRwzOrv9baMc1Q0FQhRsKcGpw5FZyURu7bMzDUTxCoAXY9gSOx-ZwEbiLhHsHijWo6d-HLWxf8bkjW1DyzGfFU7oDxgYEh_M_uI9d_cgC84LhjOHNaQkCFy6k3K6l8P7UollrNBFXl1WOg-phJbS9Vtgyf1aKihHv2K_lLV6LSfClXbHLxl31x_6w3YELj3roYAUqGviSwxZS87Ql4XGrBQyYusnClZ5a0kLN1Ed8rywT-FwrupTIxTrtyh3ly282nKyIPZXR6iqaheo84DhBo8piRWRlP59r0g' 
 );
 
-// console.log(" headers 2 ", headers );
+  console.log(" data end ", data);
 
+  console.log(" data .length ",data.length);
      this.requests.push({
        method: method,
        url: data[0]
-     });
-      
+     }); 
       return data;
     });
-    
     this.httpInterceptor.response().addInterceptor( res => res.do(null, e => this.error = e));
-
-
  }
-
 
   ngOnInit() {
     this.makeRequest();
@@ -64,19 +87,13 @@ console.log(" headers ", headers);
 
 
   makeRequest() {
-//var head = new Headers( {  "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSIsImtpZCI6ImEzck1VZ01Gdjl0UGNsTGE2eUYzekFrZnF1RSJ9.eyJpc3MiOiJodHRwczovL2Rldi5hZGxkZWxpdmVyeS5jb20vaWQiLCJhdWQiOiJodHRwczovL2Rldi5hZGxkZWxpdmVyeS5jb20vaWQvcmVzb3VyY2VzIiwiZXhwIjoxNDk1NzQzNzg4LCJuYmYiOjE0OTU3MTQ5ODgsImNsaWVudF9pZCI6ImltcGxpY2l0Y2xpZW50Iiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sInN1YiI6IjIiLCJhdXRoX3RpbWUiOjE0OTU3MTQ5ODcsImlkcCI6Imlkc3J2IiwiYW1yIjpbInBhc3N3b3JkIl19.ZRL6f8Ke1Q-d9WHzTgMoMoO989e6h6odPTvcu9TkwpkiG_1n0GkStT0E1-VnJe-cZ5hQmoTHIZza-btsmc3DHMLb9AseyDX0GtACqOe6v_Slrpap_I9nyt1oHzMsPjisj-2L1I4GR-5rWzkLKlvNqhVowJG7EQU54cbUoYDqp6DtU_kwa5beRtkheoi26zj78InjSG4lcJX2zIBA5NTXauzwMNbuAMW8ml38gdlA875Y5yWEFd9M-oohffAiazTVsnfmsGiegbkpGkXMdWi6iTOPveXz7RlL4in2sKZClCD-kaKkqjiwHNsL1GReM6DcTqMlRa0nN40rxw4tf7q9lA"});
 
-//  var options = new RequestOptions({
-//   method: RequestMethod.Post,
-//  // headers: head,
-//   url: 'https://devwebservice.adldelivery.com/api/SSRS/ListItemTypes',
-//   withCredentials:true
-// });
- var options = new RequestOptions({
-  withCredentials:true
-});
 
-    this.http.post( 'https://devwebservice.adldelivery.com/api/SSRS/ListItemTypes','',options).subscribe(r => this.res = r.text());
+    this.http.post( 'https://devwebservice.adldelivery.com/api/SSRS/ListItemTypes',''  ).subscribe(r => this.res = r.text());
+
+  // this.http.get('https://devwebservice.adldelivery.com/api/MapData/FacilityList').subscribe(r => this.res = r.text());
+
+
 
   }
 
